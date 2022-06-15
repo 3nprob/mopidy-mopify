@@ -34,6 +34,11 @@ class MopifyExtension(ext.Extension):
     def get_config_schema(self):
         schema = super(MopifyExtension, self).get_config_schema()
         schema['debug'] = config.Boolean()
+        schema['facebook_auth_frame'] = config.String()
+        schema['spotify_auth_callback'] = config.String()
+        schema['spotify_auth_frame'] = config.String()
+        schema['spotify_auth_refresh'] = config.String()
+        schema['spotify_client_id'] = config.String()
         return schema
 
     def setup(self, registry):
