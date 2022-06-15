@@ -15,7 +15,7 @@ from .services.queuemanager import requesthandler as QueueManagerRequestHandler
 
 from mopidy import config, ext
 
-__version__ = '1.7.3'
+__version__ = '1.7.4-rc0'
 __ext_name__ = 'mopify'
 __verbosemode__ = False
 
@@ -39,6 +39,7 @@ class MopifyExtension(ext.Extension):
         schema['spotify_auth_frame'] = config.String()
         schema['spotify_auth_refresh'] = config.String()
         schema['spotify_client_id'] = config.String()
+
         return schema
 
     def setup(self, registry):
@@ -59,6 +60,13 @@ class MopifyExtension(ext.Extension):
         logger.info('Setup Mopify')
 
 
+class ConfigHandler(tornado.web.RequestHandler):
+    def initialize(self, config):
+        self.config = config
+    def get(self):
+        self.write(self.config)
+
+
 def mopify_client_factory(config, core):
     directory = 'debug' if config.get(__ext_name__)['debug'] is True else 'min'
     mopifypath = os.path.join(os.path.dirname(__file__), 'static', directory)
@@ -67,6 +75,7 @@ def mopify_client_factory(config, core):
         ('/sync/(.*)', sync.RootRequestHandler, {'core': core, 'config': config}),
         ('/queuemanager/(.*)', QueueManagerRequestHandler.RequestHandler, {'core': core, 'config': config}),
         ('/update', update.UpdateRequestHandler, {'core': core, 'config': config}),
+	('/config', ConfigHandler, {'config': dict(config.get(__ext_name__))}),
         (r'/(.*)', tornado.web.StaticFileHandler, {
             "path": mopifypath,
             "default_filename": "index.html"
